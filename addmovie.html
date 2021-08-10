@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SP Games</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        .topnav {
+            overflow: hidden;
+            background-color: #333;
+        }
+
+        .topnav a {
+            float: left;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav a:hover {
+            background-color: #666699;
+            color: black;
+        }
+
+        .topnav a.active {
+            background-color: #666699;
+            color: white;
+        }
+
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .hero-image {
+            background-image: url("/image/spmovie2.png");
+            height: 50%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+
+        .hero-text {
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+        }
+
+        .hero-text button {
+            border: none;
+            outline: 0;
+            display: inline-block;
+            padding: 10px 25px;
+            color: black;
+            background-color: #ddd;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .hero-text button:hover {
+            background-color: #555;
+            color: white;
+        }
+
+        .topnav-left {
+            float: left;
+        }
+
+        .topnav-right {
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero-image">
+        <div class="hero-text">
+            <h1 style="font-size:50px; font-style: italic">Add Movie</h1>
+        </div>
+    </div>
+    <div style="background-image: url(/image/background.jfif); height: max-content;">
+        <div class="topnav">
+            <div class="topnav-left">
+                <a href="/" style="color: white;">Home</a>
+        
+                <a class="active" id="addGame" class="nav-link" href="" style="color: white;"></a>
+                <a id="addCategory" class="nav-link" href="" style="color: white;"></a>
+            </div>
+            <div class="topnav-right">
+                <a id="login-logout" class="nav-link" href="" style="color: white;"></a>
+                <img src="/image/logo.png" width="100" height="50" />
+            </div>
+        </div>
+        <div class="container" style="color: black;">
+            <div style="margin-top: 2rem;">
+                <h1>Add Movie</h1>
+    
+                <form id="add-game-form" style="margin-top: 2rem;">
+                    <div class="form-group">
+                        <p>Title</p>
+                        <textarea class="form-control" id="title" rows="3" placeholder=""></textarea>
+                    </div>
+                    <div class="form-group">
+                        <p>Description</p>
+                        <textarea class="form-control" id="description" rows="3" placeholder=""></textarea>
+                    </div>
+                    <div class="form-group">
+                        <p>Cast</p>
+                        <textarea class="form-control" id="cast" rows="3" placeholder=""></textarea>
+                    </div>
+                    <div class="form-group">
+                        <p>genre</p>
+                        <select id="genreid" style="width: 1110px; height: 70px; align-self: center; align-items: center;">
+                            <option value="1">Action</option>
+                            <option value="3">Scifi</option>
+                            <option value="4">Romcom</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <p>time</p>
+                        <textarea class="form-control" id="time" rows="3" placeholder=""></textarea>
+                    </div>
+                    <div class="form-group">
+                        <p>opening date</p>
+                        <textarea class="form-control" id="openingdate" rows="3" placeholder=""></textarea>
+                    </div>
+                  
+                    <button type="submit" class="btn btn-primary" style="background-color: white; color: black">Add movie</button>
+                </form>
+                <div id="messages">
+    
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        const baseUrl = "http://localhost:3000";
+        const loggedInUserID = parseInt(localStorage.getItem("loggedInUserID"));
+        const token = localStorage.getItem("token");
+
+        if (token === null || isNaN(loggedInUserID)) {
+            console.log("Redirecting to login...");
+            window.location.href = "/login/";
+        }
+
+        if (token === null || isNaN(loggedInUserID)) {
+            // show sign in link
+            $('#login-logout').html("Log In")
+            $('#login-logout').attr("href", "/login")
+        } else {
+            // show log out link
+            $('#login-logout').html("Log Out")
+            $("#login-logout").click(function () {
+                window.localStorage.clear();
+                $('#login-logout').attr("href", "/")
+                window.alert("Successfully Log Out");
+            });
+        }
+        
+        axios.get(`${baseUrl}/users/${loggedInUserID}`)
+            .then((response) => {
+                console.log("-------------Response Data--------------")
+                console.log(response);
+                const users = response.data;
+                users.forEach((user) => {
+                    if (user.type == 'Admin') {
+                        $('#addGame').html("Add Movie")
+                        $('#addGame').attr("href", "/addmovie")
+                        $('#addCategory').html("Add gerne")
+                        $('#addCategory').attr("href", "/addgenre/")
+                    }
+                });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+
+        $("#add-game-form").submit((event) => {
+            $("#messages").empty();
+            // prevents the page from refreshing
+            event.preventDefault();
+
+            // data extraction * compilation
+            const requestBody = {
+                title: $("#title").val(),
+                description: $("#description").val(),
+                genreid: $("#genreid").val(),
+                cast: $("#cast").val(),
+                time: $("#time").val(),
+                opening_date: $("#openingdate").val()
+                
+            };
+
+            console.log("-------Compiled Data--------");
+            console.log(requestBody);
+
+            var requestConfig = {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            };
+
+            console.log("-------Request Config--------");
+            console.log(requestConfig);
+
+            // create the movie
+            axios.post(`${baseUrl}/movie/`, requestBody, requestConfig)
+                .then((response) => {
+                    // reset form value.
+                    $("#title").val("");
+                    $("#description").val("");
+                    $("#genreid").val("");
+                    $("#cast").val();
+                    $("#time").val("");
+                    $("#openingdate").val("");
+               
+
+                   
+                    console.log("--------------------------")
+                    console.log(response)
+            
+                                window.alert("Movie added successfully");
+                                window.location.href = "/movie";
+                                $("#messages").append(
+                                    postHtml); // append - appear at bottom
+                            // });
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
+                })
+                .catch((error) => {
+                    console.log(error);
+                    // $('#messages').html("Something went wrong =(");
+                    window.alert(error);
+                });
+        // });
+    </script>
+</body>
+
+</html>
